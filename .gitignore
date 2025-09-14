@@ -35,6 +35,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# IMPORTANT: DO NOT IGNORE PDF FILES
+# Make sure PDF files in public/ are included
+!public/*.pdf
+!/public/**/*.pdf
+
 # IDE
 /.idea
 /.vscode
