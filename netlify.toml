@@ -1,9 +1,118 @@
 [build]
-  command = "npm run build"
-  publish = ".next"
-
-[functions]
-  directory = "netlify/functions"
+  command = "npm run build && npm run verify-build"
+  publish = "out"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Handle PDF files specifically
+[[redirects]]
+  from = "/Lab PK-1.pdf"
+  to = "/Lab PK-1.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/Lab PK-2.pdf"
+  to = "/Lab PK-2.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/LAB PA-1.pdf"
+  to = "/LAB PA-1.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/Rad-1.pdf"
+  to = "/Rad-1.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/Rad-2.pdf"
+  to = "/Rad-2.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/Surat Permintaan Konsultasi - Resume - 1.pdf"
+  to = "/Surat Permintaan Konsultasi - Resume - 1.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/Surat Permintaan Konsultasi - Resume - 2.pdf"
+  to = "/Surat Permintaan Konsultasi - Resume - 2.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/Lap Pembedahan - 1.pdf"
+  to = "/Lap Pembedahan - 1.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/Bukti Tindakan Layanan - 1.pdf"
+  to = "/Bukti Tindakan Layanan - 1.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/Bukti Tindakan Layanan - 2.pdf"
+  to = "/Bukti Tindakan Layanan - 2.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/S E P - 1.pdf"
+  to = "/S E P - 1.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/Billing - 1.pdf"
+  to = "/Billing - 1.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/Lain lain - 1.pdf"
+  to = "/Lain lain - 1.pdf"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/test.pdf"
+  to = "/test.pdf"
+  status = 200
+  force = false
+
+# Handle URL encoded PDF files
+[[redirects]]
+  from = "/*.pdf"
+  to = "/:splat.pdf"
+  status = 200
+  force = false
+
+# Handle all other routes for SPA behavior - this should be last
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Add headers for PDF files
+[[headers]]
+  for = "/*.pdf"
+  [headers.values]
+    Content-Type = "application/pdf"
+    Cache-Control = "public, max-age=31536000"
+    Access-Control-Allow-Origin = "*"
+
+# Add headers for static assets
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"

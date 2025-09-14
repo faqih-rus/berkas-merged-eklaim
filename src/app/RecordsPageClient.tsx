@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import BuktiTindakanLayanan from "./Navbar/BuktiTindakanLayanan";
 import Lain from "./Navbar/Lain";
 import Download from "./Navbar/Download";
+import PdfDebugInfo from "./components/PdfDebugInfo";
 import { PDFDocument } from "pdf-lib";
 
 // Komponen BerkasMerged untuk menampilkan data SEP dan Laporan Pembedahan
@@ -520,8 +521,21 @@ function PdfPanel({ pdfUrls, tabId, tabLabel }: PdfPanelProps) {
         <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <h3 className="text-lg font-medium text-gray-700 mb-2">Dokumen tidak tersedia</h3>
-        <p className="text-gray-500 mb-4 text-center">Tab ini belum memiliki dokumen PDF.</p>
+        <h3 className="text-lg font-medium text-gray-700 mb-2">Dokumen Sedang Dimuat</h3>
+        <p className="text-gray-500 mb-4 text-center">
+          {process.env.NODE_ENV === 'production' 
+            ? 'Dokumen sedang diproses, silakan tunggu sebentar...' 
+            : 'Tab ini belum memiliki dokumen PDF.'
+          }
+        </p>
+        {process.env.NODE_ENV === 'production' && (
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500"
+          >
+            Muat Ulang Halaman
+          </button>
+        )}
       </div>
     );
   }
@@ -575,19 +589,37 @@ function PdfPanel({ pdfUrls, tabId, tabLabel }: PdfPanelProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <p className="text-lg font-medium text-gray-700 mb-4">Tidak dapat memuat PDF</p>
-            <p className="text-sm text-gray-500 mb-4">Gagal memuat dokumen</p>
-            <button 
-              onClick={handleRetry}
-              className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500"
-            >
-              Coba Lagi
-            </button>
+            <p className="text-sm text-gray-500 mb-4">
+              {process.env.NODE_ENV === 'production' 
+                ? 'PDF mungkin sedang diproses di server. Silakan coba lagi dalam beberapa saat.' 
+                : 'Gagal memuat dokumen'
+              }
+            </p>
+            <div className="space-x-2">
+              <button 
+                onClick={handleRetry}
+                className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              >
+                Coba Lagi
+              </button>
+              {process.env.NODE_ENV === 'production' && (
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
+                  Muat Ulang Halaman
+                </button>
+              )}
+            </div>
           </div>
         )}
         
         {/* PDF preview */}
         {!merging && displayPdfUrl && !error && (
           <div className="relative w-full bg-white">
+            {/* Debug info for development */}
+            <PdfDebugInfo pdfUrl={displayPdfUrl} tabId={tabId} />
+            
             <div className="relative w-full h-[800px] bg-white">
               {!useIframe ? (
                 <object

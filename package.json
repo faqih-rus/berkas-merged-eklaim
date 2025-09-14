@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "verify-build": "bash scripts/verify-build.sh"
   },
   "dependencies": {
     "lucide-react": "^0.543.0",
