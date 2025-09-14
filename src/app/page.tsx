@@ -2,6 +2,8 @@
 
 import { Suspense } from 'react';
 import RecordsPageClient from './RecordsPageClient';
+import PageAtasComponent from './components/PageAtasComponent';
+import PageBawah from './components/page-bawah';
 
 // Loading component for Suspense fallback
 function Loading() {
@@ -15,10 +17,26 @@ function Loading() {
   );
 }
 
-export default function RecordsPage() {
+// Main page component with three sections
+export default function MainPage() {
   return (
-    <Suspense fallback={<Loading />}>
-      <RecordsPageClient />
-    </Suspense>
+    <div className="min-h-screen bg-gray-100">
+      {/* Section Atas */}
+      <div className="w-full">
+        <PageAtasComponent />
+      </div>
+
+      {/* Section Tengah - Records Page Client */}
+      <div className="w-full border-t border-gray-300">
+        <Suspense fallback={<Loading />}>
+          <RecordsPageClient />
+        </Suspense>
+      </div>
+
+      {/* Section Bawah */}
+      <div className="w-full border-t border-gray-300">
+        <PageBawah />
+      </div>
+    </div>
   );
 }
