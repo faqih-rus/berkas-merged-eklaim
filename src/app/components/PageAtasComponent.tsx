@@ -201,7 +201,14 @@ function PageAtasComponent() {
 }
 
 // Custom components for 3D and gradient effects
-function NavButton({ icon, text, primary, active }) {
+interface NavButtonProps {
+  icon?: string;
+  text: string;
+  primary?: boolean;
+  active?: boolean;
+}
+
+function NavButton({ icon, text, primary, active }: NavButtonProps) {
   return (
     <div className={`mr-3 py-1 flex items-center cursor-pointer ${active ? 'font-bold' : ''} hover:text-yellow-200`}>
       {icon && (
@@ -218,7 +225,13 @@ function NavButton({ icon, text, primary, active }) {
   );
 }
 
-function TabButton({ text, isActive, onClick }) {
+interface TabButtonProps {
+  text: string;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+function TabButton({ text, isActive, onClick }: TabButtonProps) {
   return (
     <button 
       className={`px-4 py-1 text-sm mr-1 rounded-t shadow-md border ${
@@ -233,7 +246,13 @@ function TabButton({ text, isActive, onClick }) {
   );
 }
 
-function ActionButton({ text, small, className = '' }) {
+interface ActionButtonProps {
+  text: string;
+  small?: boolean;
+  className?: string;
+}
+
+function ActionButton({ text, small, className = '' }: ActionButtonProps) {
   return (
     <button className={`
       bg-gradient-to-b from-blue-100 to-blue-200 
@@ -251,7 +270,14 @@ function ActionButton({ text, small, className = '' }) {
   );
 }
 
-function FormField({ label, children, right, border }) {
+interface FormFieldProps {
+  label: string;
+  children: React.ReactNode;
+  right?: boolean;
+  border?: boolean;
+}
+
+function FormField({ label, children, right, border }: FormFieldProps) {
   return (
     <div className={`p-2 border-b ${border ? 'border-r' : ''} border-gray-300 flex`}>
       <div className={`${right ? 'text-right' : ''} w-32 pr-2`}>
