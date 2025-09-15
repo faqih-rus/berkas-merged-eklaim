@@ -21,7 +21,7 @@ function PageAtasComponent() {
 
       {/* Main navigation */}
       <div className="bg-gradient-to-b from-gray-800 to-gray-700 text-white px-2 py-2 flex flex-wrap items-center text-sm">
-        <NavButton icon="🏠" text="Home" primary />
+        <NavButton icon="" text="Home" primary />
         <NavButton text="Laporan" />
         <NavButton text="E-Klaim" active />
         <NavButton icon="E" text="EMR" primary />
