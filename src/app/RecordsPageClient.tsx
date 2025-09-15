@@ -157,7 +157,7 @@ const TABS = [
   { label: "Lab PA", slug: "lab-pa" },
   { label: "Rad", slug: "rad" },
   { label: "Resume", slug: "resume" },
-  { label: "Lab Pembedahan", slug: "lab-pembedahan" },
+  { label: "Lap. Pembedahan", slug: "lab-pembedahan" },
   { label: "Bukti Tindakan/Layanan", slug: "bukti-tindakan-layanan" },
   { label: "S E P", slug: "sep" },
   { label: "Billing", slug: "billing" },
@@ -215,12 +215,49 @@ const METADATA: Record<string, Array<{ title: string; date: string; tags: string
 export default function RecordsPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [mergedTimestamp, setMergedTimestamp] = useState<string>("");
+  const [showMergedStatus, setShowMergedStatus] = useState(false);
   
   const currentTabSlug = searchParams?.get("tab") || "berkas-merged";
   const searchQuery = searchParams?.get("q") || "";
   
   const currentTab = TABS.find(tab => tab.slug === currentTabSlug) || TABS[0];
   const pdfUrls = TAB_PDFS[currentTabSlug];
+  
+  // Set timestamp only on client side
+  useEffect(() => {
+    if (currentTabSlug === "berkas-merged") {
+      setMergedTimestamp(new Date().toLocaleString('id-ID', {
+        day: '2-digit',
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }));
+    }
+  }, [currentTabSlug]);
+  
+  // Function to handle regenerate
+  const handleRegenerate = () => {
+    setShowMergedStatus(false);
+    setMergedTimestamp(new Date().toLocaleString('id-ID', {
+      day: '2-digit',
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    }));
+    // Trigger PDF reload in PdfPanel (will be handled by key change)
+  };
+  
+  // Function to show merged status when PDF is loaded
+  const handlePdfLoaded = () => {
+    if (currentTabSlug === "berkas-merged") {
+      setShowMergedStatus(true);
+    }
+  };
   
   const tabMetadata = useMemo(() => {
     return METADATA[currentTabSlug] || [];
@@ -239,12 +276,33 @@ export default function RecordsPageClient() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      <div className="mx-auto" style={{ maxWidth: '1440px' }}>
-        <div className="bg-white rounded-lg shadow-lg border border-gray-300 overflow-hidden" style={{ width: '100%', maxWidth: '1440px' }}>
+      <div className="mx-auto" style={{ maxWidth: '1600px' }}>
+        <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden" style={{ width: '100%', maxWidth: '1600px' }}>
           <Tabs 
             tabs={TABS} 
             currentTabSlug={currentTabSlug} 
           />
+          
+          {/* Regenerate Button - hanya untuk tab berkas-merged */}
+          {currentTabSlug === "berkas-merged" && (
+            <div className="bg-gray-50 border-b border-gray-200 px-4 py-2 text-center">
+              <button 
+                onClick={handleRegenerate}
+                className="px-4 py-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md border border-blue-500 transition-all duration-200 text-sm"
+              >
+                Regenerate
+              </button>
+            </div>
+          )}
+          
+          {/* Status Merged Berhasil - hanya tampil setelah PDF loaded */}
+          {currentTabSlug === "berkas-merged" && showMergedStatus && (
+            <div className="bg-white border-b border-gray-200 px-4 py-2 text-center">
+              <span className="text-green-600 text-sm">
+                Merged Berhasil{mergedTimestamp && ` - ${mergedTimestamp}`}
+              </span>
+            </div>
+          )}
           
           {/* PDF Preview Area */}
           <div className="bg-white">
@@ -259,6 +317,8 @@ export default function RecordsPageClient() {
                 pdfUrls={pdfUrls} 
                 tabId={currentTabSlug}
                 tabLabel={currentTab.label}
+                onPdfLoaded={handlePdfLoaded}
+                regenerateKey={mergedTimestamp}
               />
             )}
           </div>
@@ -305,7 +365,7 @@ function Tabs({ tabs, currentTabSlug }: TabsProps) {
   }, [handleTabClick, tabs]);
   
   return (
-    <div role="tablist" aria-label="Medical records tabs" className="flex overflow-x-auto bg-sky-300 px-2 py-1">
+    <div role="tablist" aria-label="Medical records tabs" className="flex flex-wrap bg-gradient-to-r from-sky-100 to-sky-200 px-2 py-1 border-b border-gray-300 shadow-sm">
       {tabs.map((tab, index) => (
         <button
           key={tab.slug}
@@ -314,10 +374,10 @@ function Tabs({ tabs, currentTabSlug }: TabsProps) {
           aria-selected={currentTabSlug === tab.slug}
           aria-controls={`panel-${tab.slug}`}
           tabIndex={currentTabSlug === tab.slug ? 0 : -1}
-          className={`px-3 py-2 text-sm font-medium whitespace-nowrap transition-all focus:outline-none rounded-md mx-1 ${
+          className={`px-2 py-1 text-xs font-medium whitespace-nowrap transition-all duration-200 focus:outline-none rounded border mx-0.5 my-0.5 ${
             currentTabSlug === tab.slug 
-            ? "bg-sky-500 text-white shadow-md" 
-            : "bg-sky-200 text-gray-700 hover:bg-sky-400 hover:text-white"
+            ? "bg-sky-400 text-white shadow-md border-sky-500" 
+            : "bg-white text-gray-700 hover:bg-sky-300 hover:text-white border-gray-300 hover:border-sky-400 shadow-sm"
           }`}
           onClick={() => handleTabClick(tab.slug)}
           onKeyDown={(e) => handleKeyDown(e, index)}
@@ -334,9 +394,11 @@ interface PdfPanelProps {
   pdfUrls: string | string[] | undefined;
   tabId: string;
   tabLabel: string;
+  onPdfLoaded?: () => void;
+  regenerateKey?: string;
 }
 
-function PdfPanel({ pdfUrls, tabId, tabLabel }: PdfPanelProps) {
+function PdfPanel({ pdfUrls, tabId, tabLabel, onPdfLoaded, regenerateKey }: PdfPanelProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [key, setKey] = useState(0);
@@ -397,7 +459,7 @@ function PdfPanel({ pdfUrls, tabId, tabLabel }: PdfPanelProps) {
     } finally {
       setMerging(false);
     }
-  }, []);
+  }, []); // Empty dependency array since this function doesn't depend on any props or state
   
   // Effect to handle PDF loading and merging
   useEffect(() => {
@@ -453,7 +515,7 @@ function PdfPanel({ pdfUrls, tabId, tabLabel }: PdfPanelProps) {
     return () => {
       isActive = false;
     };
-  }, [pdfUrls, tabId, pdfArray, mergePdfs]); // Include all necessary dependencies
+  }, [pdfUrls, tabId, regenerateKey]); // Remove pdfArray and mergePdfs from dependencies
   
   // Separate effect for cleanup on unmount
   useEffect(() => {
@@ -475,6 +537,10 @@ function PdfPanel({ pdfUrls, tabId, tabLabel }: PdfPanelProps) {
   const handleLoad = () => {
     console.log('PDF loaded successfully');
     setLoading(false);
+    // Call onPdfLoaded callback when PDF is fully loaded
+    if (onPdfLoaded) {
+      onPdfLoaded();
+    }
   };
   
   const handleError = () => {
@@ -534,18 +600,7 @@ function PdfPanel({ pdfUrls, tabId, tabLabel }: PdfPanelProps) {
       className="bg-white"
     >
       {/* Show file count if multiple PDFs */}
-      {hasMultiplePdfs && (
-        <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 text-center">
-          <span className="text-sm font-medium text-gray-700">
-            {merging 
-              ? `Menggabungkan ${pdfArray.length} dokumen...`
-              : mergedPdfUrl 
-                ? `${pdfArray.length} Dokumen Berhasil Digabung dalam 1 PDF`
-                : `${pdfArray.length} Dokumen Tersedia - Menampilkan dokumen pertama`
-            }
-          </span>
-        </div>
-      )}
+      {hasMultiplePdfs }
       
       <div className="bg-white">
         {/* Merging indicator */}
@@ -578,7 +633,7 @@ function PdfPanel({ pdfUrls, tabId, tabLabel }: PdfPanelProps) {
             <p className="text-sm text-gray-500 mb-4">Gagal memuat dokumen</p>
             <button 
               onClick={handleRetry}
-              className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="px-6 py-3 bg-gradient-to-b from-sky-400 to-sky-600 text-white rounded-lg hover:from-sky-500 hover:to-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-lg border border-sky-500 transform hover:scale-105 active:scale-95 transition-all duration-200"
             >
               Coba Lagi
             </button>
@@ -630,7 +685,7 @@ function PdfPanel({ pdfUrls, tabId, tabLabel }: PdfPanelProps) {
                       href={pdfUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-1 bg-sky-100 text-sky-700 text-sm rounded-md hover:bg-sky-200 transition-colors"
+                      className="inline-flex items-center px-3 py-2 bg-gradient-to-b from-sky-100 to-sky-200 text-sky-700 text-sm rounded-lg hover:from-sky-200 hover:to-sky-300 transition-all duration-200 shadow-sm border border-sky-300 hover:shadow-md transform hover:scale-105 active:scale-95"
                     >
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

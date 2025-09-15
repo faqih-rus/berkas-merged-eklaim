@@ -5,7 +5,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Berkas Management System',
+  title: 'Prototype Berkas Merged E-Klaim',
   description: 'Document management system for medical records',
 };
 

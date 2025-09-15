@@ -27,10 +27,12 @@ export default function MainPage() {
       </div>
 
       {/* Section Tengah - Records Page Client */}
-      <div className="w-full border-t border-gray-300">
-        <Suspense fallback={<Loading />}>
-          <RecordsPageClient />
-        </Suspense>
+      <div className="w-full border-t border-gray-300 ">
+        <div className="max-w-7xl mx-auto">
+          <Suspense fallback={<Loading />}>
+            <RecordsPageClient />
+          </Suspense>
+        </div>
       </div>
 
       {/* Section Bawah */}

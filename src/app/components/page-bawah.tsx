@@ -26,6 +26,7 @@ interface GroupingItem {
 
 const MedicalCodingInterface = () => {
   const [selectedItems, setSelectedItems] = useState<SelectedItems>({});
+  const [activeTab, setActiveTab] = useState('unu');
 
   const handleCheckboxChange = (key: string) => {
     setSelectedItems(prev => ({
@@ -67,21 +68,29 @@ const MedicalCodingInterface = () => {
   ];
 
   return (
-    <div className="bg-gray-50 p-4 font-sans text-sm">
-      {/* Header */}
-      <div className="bg-white border border-gray-300 mb-4">
+    <div className="flex flex-col bg-gray-100 font-sans text-sm">
+
+
+      {/* Medical Coding Tabs */}
+      <div className="bg-white border border-gray-300 mt-3 mx-3">
         <div className="flex">
-          <div className="bg-blue-400 text-white px-4 py-2 font-medium border-r border-gray-300">
+          <button 
+            className={`px-4 py-2 font-medium ${activeTab === 'unu' ? 'bg-blue-400 text-white' : 'bg-gray-100 text-gray-700'} border-r border-gray-300`}
+            onClick={() => setActiveTab('unu')}
+          >
             Coding UNU Grouper
-          </div>
-          <div className="bg-blue-400 text-white px-4 py-2 font-medium">
+          </button>
+          <button 
+            className={`px-4 py-2 font-medium ${activeTab === 'ina' ? 'bg-blue-400 text-white' : 'bg-gray-100 text-gray-700'}`}
+            onClick={() => setActiveTab('ina')}
+          >
             Coding INA Grouper
-          </div>
+          </button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="bg-white border border-gray-300">
+      <div className="bg-white border border-gray-300 mx-3 mb-3">
         {/* Diagnosis Section */}
         <div className="border-b border-gray-300">
           <div className="bg-gray-100 px-4 py-2 font-medium text-gray-700 border-b border-gray-300">
@@ -202,8 +211,7 @@ const MedicalCodingInterface = () => {
                   <td className="py-2"></td>
                   <td className="py-2"></td>
                   <td className="py-2 text-right font-medium">Total</td>
-                  <td className="py-2 text-right font-medium">Rp.</td>
-                  <td className="py-2 text-right font-medium">57,406,100</td>
+                  <td className="py-2 text-right font-medium">Rp. 57,406,100</td>
                 </tr>
               </tbody>
             </table>
